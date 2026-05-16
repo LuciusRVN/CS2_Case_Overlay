@@ -187,10 +187,20 @@ function showBlackScreen() {
   const caseName   = document.getElementById('caseName');
   const viewport   = document.querySelector('.carousel-viewport');
   const rarityBar  = document.getElementById('rarityBar');
+  const caseVideo  = document.getElementById('case-video');
 
   playStartSound();
 
   caseName.textContent = "SCANNING XRAY...";
+  if (caseVideo) {
+      caseVideo.classList.remove('blurred');
+      caseVideo.currentTime = 0;
+       caseVideo.play().catch(err => {
+      console.warn('[Video] Autoplay blocked, retrying after interaction:', err.message);
+      // Drugi retry po 50ms — Electron zazwyczaj go przepuszcza
+      setTimeout(() => caseVideo.play().catch(() => {}), 50);
+    });
+  }
   viewport.style.display = 'none';
   rarityBar.style.background = '#333';
   rarityBar.style.boxShadow = 'none';
@@ -221,6 +231,9 @@ function runDropAnimation(item) {
   const viewport   = document.querySelector('.carousel-viewport');
   const allSkins = Object.values(CASE_DB).flat();
   const winnerFromDB = allSkins.find(s => s.name === item.name);
+
+  const caseVideo = document.getElementById('case-video');
+    if (caseVideo) caseVideo.classList.add('blurred');
 
   const winnerItem = {
     name:   item.name   || 'Unknown Item',
@@ -376,7 +389,9 @@ function showWonItem(item) {
   const wonName  = document.getElementById('wonName');
   const wonWear  = document.getElementById('wonWear');
   const wonBadge = document.getElementById('wonRarityBadge');
+  const caseVideo = document.getElementById('case-video');
   document.getElementById('caseName').textContent = item.name;
+  
 
   wonName.textContent  = item.name;
   wonWear.textContent  = item.wear;
